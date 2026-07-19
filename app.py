@@ -8,7 +8,7 @@ st.set_page_config(page_title="PromptShield", page_icon="🛡️", layout="wide"
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash-latest')
+    model = genai.GenerativeModel('gemini-1.5-flash-002')
     api_configured = True
 except Exception as e:
     api_configured = False
