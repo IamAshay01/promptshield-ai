@@ -4,14 +4,22 @@ import json
 
 st.set_page_config(page_title="PromptShield", page_icon="🛡️", layout="wide")
 
+# Auto-load API key from Streamlit Secrets
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-2.0-flash')
+    api_configured = True
+except Exception as e:
+    api_configured = False
+
 st.title("🛡️ PromptShield")
 st.subheader("AI Prompt Security & Optimization Firewall")
 st.markdown("---")
 
-st.sidebar.title("🔑 Setup")
-st.sidebar.markdown("Get FREE API key: [Google AI Studio](https://aistudio.google.com/apikey)")
-api_key = st.sidebar.text_input("Enter Gemini API Key", type="password")
-
+# Sidebar
+st.sidebar.title("🛡️ PromptShield")
+st.sidebar.success("✅ AI Engine: Active")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🎯 Features")
 st.sidebar.markdown("""
@@ -21,6 +29,9 @@ st.sidebar.markdown("""
 - 🔒 Privacy Check
 - ✨ Auto Optimization
 """)
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 📊 How It Works")
+st.sidebar.info("Enter any prompt → AI analyzes threats → Get safe optimized version")
 
 st.markdown("### Enter Your Prompt for Security Analysis")
 user_prompt = st.text_area("Prompt:", height=150, placeholder="Type any prompt to analyze...")
@@ -30,13 +41,10 @@ with col2:
     analyze_btn = st.button("🚀 Analyze Prompt", type="primary", use_container_width=True)
 
 if analyze_btn and user_prompt:
-    if not api_key:
-        st.error("⚠️ Please enter your Gemini API key in the sidebar!")
+    if not api_configured:
+        st.error("⚠️ API not configured. Contact administrator.")
     else:
         try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-2.0-flash')
-            
             system_prompt = f"""You are PromptShield, an AI Security Auditor.
 Analyze this prompt and return ONLY valid JSON (no markdown):
 
