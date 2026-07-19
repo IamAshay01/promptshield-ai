@@ -5,11 +5,34 @@ import json
 st.set_page_config(page_title="PromptShield", page_icon="🛡️", layout="wide")
 
 # Auto-load API key from Streamlit Secrets
+api_configured = False
+model = None
+model_name_used = ""
+
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash-002')
-    api_configured = True
+    
+    # Try multiple models in order of preference
+    model_options = [
+        'models/gemini-flash-latest',
+        'models/gemini-pro-latest',
+        'models/gemini-2.5-flash',
+        'models/gemini-2.0-flash-001',
+        'models/gemini-flash-lite-latest',
+    ]
+    
+    for m_name in model_options:
+        try:
+            model = genai.GenerativeModel(m_name)
+            # Test with a tiny call
+            test = model.generate_content("hi")
+            model_name_used = m_name
+            api_configured = True
+            break
+        except Exception:
+            continue
+            
 except Exception as e:
     api_configured = False
 
@@ -19,7 +42,12 @@ st.markdown("---")
 
 # Sidebar
 st.sidebar.title("🛡️ PromptShield")
-st.sidebar.success("✅ AI Engine: Active")
+if api_configured:
+    st.sidebar.success(f"✅ AI Engine: Active")
+    st.sidebar.caption(f"Model: {model_name_used}")
+else:
+    st.sidebar.error("❌ AI Engine: Offline")
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🎯 Features")
 st.sidebar.markdown("""
